@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using FluentValidation;
+using FluentValidation.Results;
 
 namespace Core.Extensions
 {
@@ -36,9 +37,20 @@ namespace Core.Extensions
             httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
             string message = "Internal Server Error";
+            IEnumerable<ValidationFailure> errors;
+
             if (e.GetType() == typeof(ValidationException))
             {
                 message = e.Message;
+                errors = ((ValidationException)e).Errors;
+                httpContext.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+
+                return httpContext.Response.WriteAsync(new ValidationErrorDetails
+                {
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    Message = message,
+                    ValidationErrors = errors
+                }.ToString());
             }
 
             return httpContext.Response.WriteAsync(new ErrorDetails

@@ -31,12 +31,15 @@ namespace Business.Concrete
             _categoryService = categoryService;
         }
 
-        [SecuredOperation("product.add,admin")]
+        //[SecuredOperation("product.add,admin")]
         [ValidationAspect(typeof(ProductValidator))]
         [CacheRemoveAspect("IProductService.Get")]
         public IResult Add(Product product)
         {
-            IResult result = BusinessRules.Run(CheckIfProductNameExist(product.ProductName) ,CheckIfProductCountOfCategoryCorrect(product.CategoryId), IfMoreThan15Categories(), CheckIfCategoryLimitExceded());
+            IResult result = BusinessRules.Run(CheckIfProductNameExist(product.ProductName),
+              CheckIfProductCountOfCategoryCorrect(product.CategoryId),
+              IfMoreThan15Categories(),
+              CheckIfCategoryLimitExceded());
 
             if (result != null)
             {
@@ -150,11 +153,11 @@ namespace Business.Concrete
         {
             Add(product);
 
-            if (product.UnitPrice<10)
+            if (product.UnitPrice < 10)
             {
                 throw new Exception("");
             }
-            
+
             Add(product);
 
             return null;
